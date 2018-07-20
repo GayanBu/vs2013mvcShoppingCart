@@ -367,5 +367,43 @@ namespace cmsShoppingCart2.Areas.Admin.Controllers
             }
             return RedirectToAction("Products");
         }
+        [HttpPost]
+        public void SaveGalleryImages(int id)
+        {
+            foreach (string fileName in Request.Files)
+            {
+                HttpPostedFileBase file = Request.Files[fileName];
+                if(file != null && file.ContentLength > 0)
+                {
+                    var originalDirectory = new DirectoryInfo(String.Format("{0}Images\\Uploads", Server.MapPath(@"\")));
+
+                    var pathString1 = Path.Combine(originalDirectory.ToString(), "Products\\" + id.ToString() + "\\Gallery");
+                    var pathString2 = Path.Combine(originalDirectory.ToString(), "Products\\" + id.ToString() + "\\Gallery\\Thumbs");
+
+                    var path = string.Format("{0}\\{1}", pathString1, file.FileName);
+                    var path2 = string.Format("{0}\\{1}", pathString2, file.FileName);
+
+                    file.SaveAs(path);
+                    WebImage img = new WebImage(file.InputStream);
+                    img.Resize(200, 200);
+                    img.Save(path2); 
+                }
+            }
+           
+        }
+        [HttpPost]
+        public void DeleteImage(int id, string imageName)
+        {
+            string fullpath = Request.MapPath("~/Images/Uploads/Products/" + id.ToString() + "/Gallery/" +imageName);
+            string fullpath2 = Request.MapPath("~/Images/Uploads/Products/" + id.ToString() + "/Gallery/Thumbs" + imageName);
+            if (System.IO.File.Exists(fullpath))
+            {
+                System.IO.File.Delete(fullpath);
+            }
+            if (System.IO.File.Exists(fullpath2))
+            {
+                System.IO.File.Delete(fullpath2);
+            }
+        }
     }
 }

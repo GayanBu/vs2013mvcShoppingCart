@@ -23,7 +23,7 @@
     <div class="form-horizontal">
         <hr />
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-        @Html.HiddenFor(model => model.Id)
+        @Html.HiddenFor(model => model.Id)  
 
         <div class="form-group">
             @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "control-label col-md-2" })
@@ -88,8 +88,8 @@
     <h3>No images in Gallery Images</h3>
 
 }
-<form action="/admin/shop/ShowGalleryImages" method="post" id="dropzoneForm" class="dropzone" enctype="multipart/form-data">
-    <div class="falback">
+<form action="/admin/shop/SaveGalleryImages" method="post" id="dropzoneForm" class="dropzone" enctype="multipart/form-data">
+    <div class="fallback">
         <input type="file" name="file" multiple />
         <input type="submit" value="Upload" />
     </div>
@@ -109,18 +109,18 @@
         /*
          preview selected image
          */
-        //function readURL(input) {
-        //    if (input.files && input.files[0]) {
-        //        var reader = new FileReader();
-        //        reader.onload = function (e) {
-        //            $("img#imgpreview")
-        //                .attr("src", e.target.result)
-        //                .width(200)
-        //                .height(200);
-        //        }
-        //        reader.readAsDataURL(input.files[0]);
-        //    }
-        //}
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    $("img#imgpreview")
+                        .attr("src", e.target.result)
+                        .width(200)
+                        .height(200);
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
         $("#ImageUpload").change(function () {
             readURL(this);
         })
@@ -128,19 +128,33 @@
         /*
         dropzone js
         */
-        Dropzone.options.Dropzone = {
+        Dropzone.options.dropzoneForm = {
             acceptedFiles: "image/*",
             init: function () {
-                this.on("complte", function (file) {
+                this.on("complete", function (file) {
                     if (this.getUploadingFiles().length === 0 && this.getQueuedFiles().length === 0) {
                         location.reload();
                     }
                 });
                 this.on("sending", function (file, xhr, formData) {
-                    formData.append(id, @Model.Id)
+                    formData.append("id", @Model.Id);
+                    console.log(formData)
                 })
 
             }
         }
+
+        $("a.deleteimage").click(function (e) {
+            e.preventDefault();
+            if (!confirm("Confirm deletion"))
+                return false;
+
+            var $this = $(this);
+            var url = "/admin/shop/DeleteImage";
+            var imageName = $this.data("name");
+            $.post(url, { id:@Model.Id, imageName: imageName }, function (data) {
+                $this.parent().fadeOut("fast");
+            });
+        })
     </script>
 }
